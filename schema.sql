@@ -17,3 +17,11 @@ create table gpus (
     amazon decimal,
     msy decimal
 );
+
+create table debbie (
+    id serial primary key,
+    name text,
+    date text,
+    amazon decimal,
+    book_depository decimal
+);
