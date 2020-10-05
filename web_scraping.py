@@ -18,6 +18,8 @@ def prices():
     conn = psycopg2.connect("dbname=webscraping user=postgres password=postgres")
     cur = conn.cursor()
 
+# ----------------------------------------------------------------------------
+
     amazon_URLS = [
         '',
         'https://www.amazon.com.au/Irregular-Magic-School-light-novel/dp/0316348805/ref=tmm_pap_swatch_0?_encoding=UTF8&qid=1598990513&sr=8-2',
@@ -85,10 +87,51 @@ def prices():
 
         conn.commit()
 
+    
+
+
+# -------------------------------------------------------------------------
+
+    RTX_2070_super = [
+        'https://www.amazon.com.au/Gigabyte-nVidia-GeForce-Gaming-Graphics/dp/B07WZ6FWPK/ref=sr_1_22?crid=185JYGEWF8X67&dchild=1&keywords=2080+super&qid=1600044028&sprefix=2080+s%2Caps%2C361&sr=8-22',
+        'https://www.msy.com.au/gigabyte-nvidia-gv-n207sgaming-oc-8gd-8gb-rtx-2070-super-gaming-oc-pci-e-vga-card'
+    ]
+
+    ama_gpu_page = requests.get(RTX_2070_super[0], headers=headers)
+
+    ama_gpu_soup = BeautifulSoup(ama_gpu_page.content, 'html.parser')
+
+    gpu_title = 'Gigabyte RTX 2070 super'
+    if (ama_gpu_soup.findAll("span", {"class":"a-color-price"})):
+        ama_gpu_price = Decimal((ama_gpu_soup.findAll("span", {"class":"a-color-price"})[0].get_text()).replace('$', ''))
+    else:
+        ama_gpu_price = 0
+    print(gpu_title)
+    print(ama_gpu_price)
+    
+    msy_gpu_page = requests.get(RTX_2070_super[1], headers=headers)
+
+    msy_gpu_soup = BeautifulSoup(msy_gpu_page.content, 'html.parser')
+
+    msy_gpu_price = Decimal((msy_gpu_soup.findAll("span", {"class":"price-value-13019"})[0].get_text()).replace('$', ''))
+
+    print(msy_gpu_price)
+
+    sql = "INSERT INTO gpus (name, date, amazon, msy)  VALUES (%s, %s, %s, %s);"
+
+    cur.execute(sql, (gpu_title, d1, ama_gpu_price, msy_gpu_price,))
+
+    conn.commit()
+
+    print('done')
+    
+
+#--------------------------------------------------------------------
+
     bb_amazon_URLS = [
         # start at volume 9
         '',
-        'https://www.amazon.com.au/Irregular-Magic-School-light-novel/dp/0316348805/ref=tmm_pap_swatch_0?_encoding=UTF8&qid=1598990513&sr=8-2',
+        'https://www.amazon.com.au/Black-Butler-Vol-Yana-Toboso/dp/0316189677/ref=sr_1_1?dchild=1&keywords=black+butler+vol.9&qid=1601772052&sr=8-1',
         '',
         'https://www.amazon.com.au/Black-Butler-Vol-Yana-Toboso/dp/0316225339/ref=pd_sim_14_4/355-4405811-4057514?_encoding=UTF8&pd_rd_i=0316225339&pd_rd_r=659b021c-b1f5-486c-b492-5e7f1e11d251&pd_rd_w=nYCpI&pd_rd_wg=UmXMd&pf_rd_p=dec5644e-0ad3-467a-97e1-8e4d6a4ec7c2&pf_rd_r=ZSWCS1F4N7AV7S7204D8&psc=1&refRID=ZSWCS1F4N7AV7S7204D8',
         'https://www.amazon.com.au/Black-Butler-Vol-Yana-Toboso/dp/0316225347/ref=pd_sim_14_2/355-4405811-4057514?_encoding=UTF8&pd_rd_i=0316225347&pd_rd_r=659b021c-b1f5-486c-b492-5e7f1e11d251&pd_rd_w=nYCpI&pd_rd_wg=UmXMd&pf_rd_p=dec5644e-0ad3-467a-97e1-8e4d6a4ec7c2&pf_rd_r=ZSWCS1F4N7AV7S7204D8&psc=1&refRID=ZSWCS1F4N7AV7S7204D8',
@@ -140,43 +183,8 @@ def prices():
             cur.execute(sql, (bb_title, d1, bb_ama_price, bb_bd_price,))
 
             conn.commit()
-
-
-# -------------------------------------------------------------------------
-
-    RTX_2070_super = [
-        'https://www.amazon.com.au/Gigabyte-nVidia-GeForce-Gaming-Graphics/dp/B07WZ6FWPK/ref=sr_1_22?crid=185JYGEWF8X67&dchild=1&keywords=2080+super&qid=1600044028&sprefix=2080+s%2Caps%2C361&sr=8-22',
-        'https://www.msy.com.au/gigabyte-nvidia-gv-n207sgaming-oc-8gd-8gb-rtx-2070-super-gaming-oc-pci-e-vga-card'
-    ]
-
-    ama_gpu_page = requests.get(RTX_2070_super[0], headers=headers)
-
-    ama_gpu_soup = BeautifulSoup(ama_gpu_page.content, 'html.parser')
-
-    gpu_title = 'Gigabyte RTX 2070 super'
-    if (ama_gpu_soup.findAll("span", {"class":"a-color-price"})):
-        ama_gpu_price = Decimal((ama_gpu_soup.findAll("span", {"class":"a-color-price"})[0].get_text()).replace('$', ''))
-    else:
-        ama_gpu_price = 0
-    print(gpu_title)
-    print(ama_gpu_price)
-    
-    msy_gpu_page = requests.get(RTX_2070_super[1], headers=headers)
-
-    msy_gpu_soup = BeautifulSoup(msy_gpu_page.content, 'html.parser')
-
-    msy_gpu_price = Decimal((msy_gpu_soup.findAll("span", {"class":"price-value-13019"})[0].get_text()).replace('$', ''))
-
-    print(msy_gpu_price)
-
-    sql = "INSERT INTO gpus (name, date, amazon, msy)  VALUES (%s, %s, %s, %s);"
-
-    cur.execute(sql, (gpu_title, d1, ama_gpu_price, msy_gpu_price,))
-
-    conn.commit()
-
-    print('done')
-    
+        else: 
+            print('skip volume 10')
 
 schedule.every().day.at("09:00").do(prices)
 
@@ -185,3 +193,11 @@ while True:
     time.sleep(1)
 
 # prices()
+
+# Priorty list for improvements
+# handle error and keep going
+
+# look into Ezgmail for accessing emails 'https://pypi.org/project/EZGmail/'
+
+# look into gmail api to access emails
+# imaplib ??
