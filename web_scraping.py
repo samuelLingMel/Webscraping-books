@@ -65,6 +65,7 @@ def prices():
         ama_soup = BeautifulSoup(ama_page.content, 'html.parser')
 
         title = 'Mahouka Vol.' + str(i)
+
         ama_price = Decimal((ama_soup.findAll("span", {"class":"a-color-price"})[0].get_text()).replace('$', ''))
 
         print(title)
@@ -186,13 +187,13 @@ def prices():
         else: 
             print('skip volume 10')
 
-schedule.every().day.at("09:00").do(prices)
+# schedule.every().day.at("09:00").do(prices)
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
 
-# prices()
+prices()
 
 # Priorty list for improvements
 # handle error and keep going
